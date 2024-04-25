@@ -1,0 +1,378 @@
+quests:
+  '2': # 任务 ID
+    type: chat-stripped
+    variable: how are you?
+    name: 很健谈
+    required-progress: 2
+    points: 10
+    item:
+      material: paper
+      name: '&e很健谈'
+      lore:
+      - '&7要完成此任务，您必须'
+      - '&7在聊天中说：你好吗？'
+      - ''
+      - '&7(&a%percentage_progress%&7'
+  '3': # Quest id
+    type: gain-experience
+    variable: none
+    name: 魔术磁铁
+    required-progress: 315
+    points: 10
+    item:
+      material: book
+      name: '&e魔术磁铁'
+      lore:
+      - '&7要完成此任务，您必须'
+      - '&7达到经验值 15 级'
+      - ''
+      - '&7(&a%percentage_progress%&7)'
+  '4': # Quest id
+    type: kill-player
+    variable: none
+    name: 谋杀之谜
+    required-progress: 2
+    points: 10
+    item:
+      material: stone_sword
+      name: '&e谋杀之谜'
+      lore:
+      - '&7要完成此任务，您必须'
+      - '&7在 PvP 中杀死 2 名玩家'
+      - ''
+      - '&7(&a%percentage_progress%&7)'
+  '5': # Quest id
+    type: sprint
+    variable: none
+    name: 跑步者
+    required-progress: 2500
+    points: 10
+    item:
+      material: leather_boots
+      name: '&e马拉松运动员'
+      lore:
+      - '&7要完成此任务，您必须'
+      - '&7冲刺超过 2500 个区块。'
+      - ''
+      - '&7(&a%percentage_progress%&7)'
+  '6': # Quest id
+    type: throw-projectile
+    variable: none
+    name: 投掷和投掷
+    required-progress: 200
+    points: 10
+    item:
+      material: snowball
+      name: '&射射射'
+      lore:
+      - '&7要完成此任务，您必须'
+      - '&7投掷/射击 200 发弹丸.'
+      - ''
+      - '&7(&a%percentage_progress%&7)'
+  '7': # Quest id
+    type: block-break
+    variable: stone
+    name: 矿工
+    required-progress: 500
+    points: 100
+    item:
+      material: cobblestone
+      name: '&e矿工'
+      lore:
+      - '&7要完成此任务，您必须'
+      - '&7开采 500 块石块.'
+      - ''
+      - '&7(&a%percentage_progress%&7)'
+#  '8': # Quest id
+#    type: block-break
+#    variable: jungle_log:3 OR jungle_log:11 OR jungle_log:7 OR jungle_wood:15
+#    name: 森林人
+#    required-progress: 350
+#    points: 10
+#    item:
+#      material: jungle_log
+#      name: '&e森林人'
+#      lore:
+#      - '&7要完成此任务，您必须'
+#      - '&7开采超过 350 块丛林木块或原木。'
+#      - ''
+#      - '&7(&a%percentage_progress%&7)'
+#  '9': # Quest id
+#    type: craft
+#    variable: diamond_sword OR iron_sword OR stone_sword OR netherite_sword OR wooden_sword
+#      OR golden_sword
+#    name: 铁匠
+#    required-progress: 4
+#    points: 10
+#    item:
+#      material: iron_sword
+#      name: '&e铁匠'
+#      lore:
+#      - '&7要完成此任务，您必须'
+#      - '&7制作 4 把任何材料的剑.'
+#      - ''
+#      - '&7(&a%percentage_progress%&7)'
+#  '10':
+#    type: enchant-all
+#    variable:
+#      root: FEATHER_FALLING
+#      level: 2
+#    name: 摔得更狠
+#    required-progress: 1
+#    points: 10
+#    item:
+#      material: enchanting_table
+#      name: '&e摔得更狠'
+#      lore:
+#      - '&7要完成此任务，您必须'
+#      - '&7摔落缓冲的附魔靴 2级.'
+#      - ''
+#      - '&7(&a%percentage_progress%&7)'
+#  '11':
+#    type: consume
+#    variable: enchanted_golden_apple
+#    name: 真正神奇的苹果
+#    required-progress: 2
+#    points: 10
+#    item:
+#      material: enchanted_golden_apple
+#      name: '&e真正神奇的苹果'
+#      lore:
+#      - '&7要完成此任务，您必须'
+#      - '&7吃 2 个附魔金苹果。'
+#      - ''
+#      - '&7(&a%percentage_progress%&7)'
+#  '12': # Quest id
+#    type: left-click
+#    variable: none
+#    name: Autoclicker
+#    required-progress: 28200
+#    points: 10
+#    item:
+#      material: anvil:0
+#      name: '&e自动点击器'
+#      lore:
+#      - '&7要完成此任务，您必须'
+#      - '&7左键单击 28200 块。'
+#      - ''
+#      - '&7(&a%percentage_progress%&7)'
+#  '13': # Quest id
+#    type: chat-stripped
+#    variable: this is fun
+#    name: 很健谈
+#    required-progress: 1
+#    points: 10
+#    item:
+#      material: paper
+#      name: '&e很健谈'
+#      lore:
+#      - '&7要完成此任务，您必须'
+#      - '&7在聊天中说“这很有趣”。'
+#      - ''
+#      - '&7(&a%percentage_progress%&7)'
+#  '14': # Quest id
+#    type: regenerate
+#    variable: SATIATED
+#    name: 饥饿游戏
+#    required-progress: 1
+#    points: 10
+#    item:
+#      material: cooked_beef
+#      name: '&e饥饿游戏'
+#      lore:
+#      - '&7要完成此任务，您必须'
+#      - '&7吃食物来填饱肚子，恢复健康。'
+#      - ''
+#      - '&7(&a%percentage_progress%&7)'
+#  '15': # Quest id
+#    type: shear
+#    variable: none
+#    name: Wooly Jumper
+#    required-progress: 12
+#    points: 10
+#    item:
+#      material: white_wool
+#      name: '&e羊毛毛衣'
+#      lore:
+#      - '&7要完成此任务，您必须'
+#      - '&7剪12只野羊。'
+#      - ''
+#      - '&7(&a%percentage_progress%&7)'
+#  '16': # Quest id
+#    type: swim
+#    variable: none
+#    name: 继续游泳
+#    required-progress: 600
+#    points: 10
+#    item:
+#      material: water_bucket
+#      name: '&e继续游泳'
+#      lore:
+#      - '&7要完成此任务，您必须'
+#      - '&7游泳 600 米'
+#      - ''
+#      - '&7(&a%percentage_progress%&7)'
+#  '17': # Quest id
+#    type: block-break
+#    variable: grass_block OR dirt
+#    name: 肮脏的一天
+#    required-progress: 333
+#    points: 10
+#    item:
+#      material: grass_block
+#      name: '&e肮脏的一天'
+#      lore:
+#      - '&7要完成此任务，您必须'
+#      - '&7开采 333 块泥土/草地'
+#      - ''
+#      - '&7(&a%percentage_progress%&7)'
+#  '18': # Quest id
+#    type: bucket-place
+#    variable: lava_bucket
+#    name: 燃起来了
+#    required-progress: 3
+#    points: 10
+#    item:
+#      material: lava_bucket
+#      name: '&e燃起来了'
+#      lore:
+#      - '&7要完成此任务，您必须'
+#      - '&7放置 3 个熔岩桶'
+#      - ''
+#      - '&7(&a%percentage_progress%&7)'
+#  '19': # Quest id
+#    type: fish
+#    variable: none
+#    name: 捕鱼者
+#    required-progress: 3
+#    points: 10
+#    item:
+#      material: salmonmak
+#      name: '&e捕鱼者'
+#      lore:
+#      - '&7要完成此任务，您必须'
+#      - '&7钓鱼 3 次'
+#      - ''
+#      - '&7(&a%percentage_progress%&7)'
+#  '20': # Quest id
+#    type: sneak
+#    variable: none
+#    name: 令人毛骨悚然的爬
+#    required-progress: 55
+#    points: 10
+#    item:
+#      material: leather_boots
+#      name: '&e令人毛骨悚然的爬'
+#      lore:
+#      - '&7要完成此任务，您必须'
+#      - '&7向任何方向潜行 55 个方块'
+#      - ''
+#      - '&7(&a%percentage_progress%&7)'
+#  '21': # Quest id
+#    type: kill-mob
+#    variable: cow
+#    name: 奶牛杀手
+#    required-progress: 10
+#    points: 10
+#    item:
+#      material: leather
+#      name: '&e奶牛杀手'
+#      lore:
+#      - '&7要完成此任务，您必须'
+#      - '&7杀死 10 头奶牛.'
+#      - ''
+#      - '&7(&a%percentage_progress%&7)'
+#  '22':
+#    type: glide
+#    variable: none
+#    name: Glider
+#    required-progress: 150
+#    points: 10
+#    item:
+#      material: elytra
+#      name: '&e滑翔机'
+#      lore:
+#      - '&7要完成此任务，您必须'
+#      - '&7滑过 150 个区块。'
+#      - ''
+#      - '&7(&a%percentage_progress%&7)'
+#  '23': # Quest id
+#    type: block-break
+#    variable:
+#      root: oak_log
+#    name: 伐木 工人
+#    required-progress: 50
+#    points: 10
+#    item:
+#      material: oak_log
+#      name: '&e伐木 工人'
+#      lore:
+#      - '&7要完成此任务，您必须'
+#      - '&7打破 50 根橡木原木.'
+#      - ''
+#      - '&7(&a%percentage_progress%&7)'
+#  '24': # Quest id
+#    type: enchant-all
+#    variable:
+#      root: SHARPNESS
+#      level: 1
+#      item: diamond_sword
+#    name: 附 魔
+#    required-progress: 1
+#    points: 10
+#    item:
+#      material: enchanting_table
+#      name: '&e附 魔'
+#      lore:
+#      - '&7要完成此任务，您必须'
+#      - '&7用锋利度 1 附魔钻石剑'
+#      - '&7使用铁砧或附魔台。'
+#      - ''
+#      - '&7(&a%percentage_progress%&7)'
+#  '25': # Quest id
+#    type: fish
+#    variable: none
+#    name: 渔夫
+#    required-progress: 10
+#    points: 10
+#    item:
+#      material: fishing_rod
+#      name: '&e渔夫'
+#      lore:
+#      - '&7要完成此任务，您必须'
+#      - '&7成功钓鱼10次。'
+#      - ''
+#      - '&7(&a%percentage_progress%&7)'
+#  '26': # Quest id
+#    type: enchant-anvil
+#    variable:
+#      root: PROTECTION
+#      level: 1
+#      item: diamond_chestplate
+#    name: 保护
+#    required-progress: 1
+#    points: 10
+#    item:
+#      material: diamond_chestplate
+#      name: '&e保护'
+#      lore:
+#      - '&7要完成此任务，您必须'
+#      - '&7使用铁砧附魔具有保护 1 的钻石胸甲.'
+#      - ''
+#      - '&7(&a%percentage_progress%&7)'
+#  '27': # Quest id
+#    type: smelt
+#    variable:
+#      root: iron_ingot
+#      amount: 10
+#    name: 冶炼
+#    required-progress: 10
+#    points: 10
+#    item:
+#      material: furnace
+#      name: '&e冶炼'
+#      lore:
+#      - '&7要完成此任务，您必须'
+#      - '&7冶炼10个铁锭。'
+#      - ''
+#      - '&7(&a%percentage_progress%&7)'

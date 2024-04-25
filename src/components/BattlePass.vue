@@ -2,16 +2,7 @@
     <div class="main">
         <h1 class="title">战斗通行证设置</h1>
         <div class="grid-container">
-            <div class="card reward-card" @click="activeComponent = 'RewardSettings'">
-                <div class="card-icon">
-                    <i class="fas fa-gift"></i>
-                </div>
-                <div class="nav-link" >
-                    <div class="card-body">
-                        <h5 class="card-title">奖励设置</h5>
-                    </div>
-                </div>
-            </div>
+            
             <div class="card daily-task-card" @click="activeComponent = 'DailyTaskSettings'">
                 <div class="card-icon">
                     <i class="fas fa-sun"></i>
@@ -29,6 +20,16 @@
                 <div class="nav-link" >
                     <div class="card-body">
                         <h5 class="card-title">每周任务设置</h5>
+                    </div>
+                </div>
+            </div>
+            <div class="card reward-card" @click="activeComponent = 'RewardSettings'">
+                <div class="card-icon">
+                    <i class="fas fa-gift"></i>
+                </div>
+                <div class="nav-link" >
+                    <div class="card-body">
+                        <h5 class="card-title">通行证奖励设置</h5>
                     </div>
                 </div>
             </div>
@@ -66,7 +67,7 @@ export default {
         PassTaskSettings, // 添加你的通行证任务设置的组件
     },
     created() {
-        this.activeComponent = 'RewardSettings';
+        this.activeComponent = 'DailyTaskSettings';
     },
 };
 </script>

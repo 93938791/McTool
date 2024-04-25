@@ -19,7 +19,7 @@
         <div class="preview">
             <pre><code class="language-yaml line-numbers">{{ highlightedYaml }}</code></pre>
         </div>
-        <a-drawer :width="500" title="Basic Drawer" :placement="right" :open="open" @close="onClose">
+        <a-drawer :width="500" title="通行证奖励设置" :placement="right" :open="open" @close="onClose">
             <template #extra>
                 <a-button style="margin-right: 8px" @click="onClose">关闭</a-button>
                 <a-button type="primary" @click="onClose">保存</a-button>
