@@ -1,0 +1,39 @@
+'1': # The id of the reward
+  type: command
+  name: '一等奖'
+  lore-addon:
+    - '&7 - &e一个很酷的信息'
+  commands:
+    - 'msg %player% Sweet!'
+
+'2':
+  type: item
+  lore-addon:
+    - '&7 - &e哇！很酷的东西'
+  items:
+    '1': # 第一项奖励（必填）
+      material: diamond_block:0
+      amount: 1
+      name: '' # 如果保留为 null，则该物品将具有默认的 Minecraft 名称。
+      lore: [] # 如果保留为 null，则该物品将没有知识。
+      glow: true # 该物品是否会有结界“发光”。
+    '2': # 第二项奖励（非必需）->您可以拥有两个以上。
+      material: coal_block:0
+      amount: 1
+      name: ''
+      lore:
+        - '&7 一个 &e了不起的 &7煤块'
+
+'3':
+  type: command # 您仍然可以使用命令为项目提供:)
+  lore-addon:
+    - '&6 - &e遗留物品赠送'
+  commands:
+    - 'give %player% diamond_block 32'
+
+'4':
+  type: command
+  lore-addon:
+    - '&6 - 宣布您的成就.'
+  commands:
+    - 'broadcast &6%player% reached a key BattlePass tier!!'

@@ -1,155 +1,582 @@
 <template>
-    <div class="container">
-        <div class="settings">
-            <a-card :onclick="add" class="card add" width="100%">
-                <PlusOutlined  style="font-size: 50px;" />
-            </a-card>
-            <div class="card" v-for="card in cards">
-                <a-card width="100%" title="Card title">
-                    <template #actions>
-                        <CopyFilled key="copy" />
-                        <edit-outlined key="edit" />
-                        <DeleteFilled key="delete" />
-                    </template>
-
-                    <p>{{ card }}</p>
-                </a-card>
+  <div class="container">
+    <div class="settings">
+      <a-card :onclick="add" class="card add" width="100%">
+        <PlusOutlined style="font-size: 50px" />
+      </a-card>
+      <div class="card" v-for="item in cards.quests">
+        <a-card width="100%">
+          <template #title>
+            <div>
+              <span style="float: right">{{ item.name }}</span>
+              <a-tag color="green">{{ item.taskId }}</a-tag>
             </div>
-        </div>
-        <div class="preview">
-            <pre><code class="language-yaml line-numbers">{{ highlightedYaml }}</code></pre>
-        </div>
-        <a-drawer :width="500" title="通行证奖励设置" :placement="right" :open="open" @close="onClose">
-            <template #extra>
-                <a-button style="margin-right: 8px" @click="onClose">关闭</a-button>
-                <a-button type="primary" @click="onClose">保存</a-button>
-            </template>
-            <p>Some contents...</p>
-            <p>Some contents...</p>
-            <p>Some contents...</p>
-        </a-drawer>
+          </template>
+          <template #actions>
+            <CopyFilled @click="copy(item)" key="copy" />
+            <edit-outlined @click="edit(item)" key="edit" />
+            <DeleteFilled @click="remove(item)" key="delete" />
+          </template>
+          <div class="custom-card">
+            <a-popover trigger="hover">
+              <template #content>
+                <p>{{ item.type }}</p>
+              </template>
+              <a-button>奖励类型</a-button>
+            </a-popover>
+
+            <a-popover trigger="hover">
+              <template #content>
+                <p>奖励说明:</p>
+                <p v-for="lore in item.item.lore_addon">{{ lore }}</p>
+              </template>
+              <a-button>奖励说明配置</a-button>
+            </a-popover>
+
+            <a-popover v-if="item.type == 'item'" trigger="hover">
+              <template #content>
+                <p>展示道具: {{ item.item.material }}</p>
+                <p>道具数量: {{ item.item.amount }}</p>
+                <p>道具名称: {{ item.item.name }}</p>
+                <p>物品是否发光: {{ item.item.glow }}</p>
+                <p>道具说明:</p>
+                <p v-for="lore in item.item.lore">{{ lore }}</p>
+              </template>
+              <a-button>物品奖励</a-button>
+            </a-popover>
+
+            <a-popover v-if="item.type == 'command'" trigger="hover">
+              <template #content>
+                <p>执行指令:</p>
+                <p v-for="lore in item.item.lore_addon">{{ lore }}</p>
+              </template>
+              <a-button>指令奖励</a-button>
+            </a-popover>
+          </div>
+        </a-card>
+      </div>
     </div>
+
+    <div class="preview">
+      <pre><code class="language-yaml line-numbers">{{ yaml }}</code></pre>
+    </div>
+    <a-drawer :width="800" title="通行证奖励设置" :open="open" @close="onClose">
+      <template #extra>
+        <a-button style="margin-right: 8px" @click="onClose">关闭</a-button>
+        <a-button type="primary" @click="save()">保存</a-button>
+      </template>
+      <a-form :model="addform">
+        <a-form-item label="奖励id">
+          <a-tag color="green">{{ addform.taskId }}</a-tag></a-form-item
+        >
+        <a-form-item label="奖励名称">
+          <a-input v-model:value="addform.name" style="width: 400px; margin-left: 10px" />
+        </a-form-item>
+
+        <a-form-item label="奖励说明">
+          <template v-for="(tag, index) in lore_state.lore_tags" :key="tag">
+            <a-tooltip v-if="tag.length > 20" :title="tag">
+              <a-tag :closable="index !== 0" @close="lore_handleClose(tag)">
+                {{ `${tag.slice(0, 20)}...` }}
+              </a-tag>
+            </a-tooltip>
+            <a-tag v-else closable @close="lore_handleClose(tag)">
+              {{ tag }}
+            </a-tag>
+          </template>
+          <a-input
+            v-if="lore_state.lore_inputVisible"
+            ref="lore_inputRef"
+            type="text"
+            size="small"
+            :style="{ width: '78px' }"
+            v-model:value="lore_state.lore_inputValue"
+            @blur="lore_handleInputConfirm"
+            @keyup.enter="lore_handleInputConfirm"
+          />
+          <a-tag
+            v-else
+            @click="lore_showInput"
+            style="background: #fff; border-style: dashed"
+          >
+            <plus-outlined />
+            新增说明
+          </a-tag>
+        </a-form-item>
+
+        <a-form-item label="奖励类型">
+          <a-radio-group v-model:value="addform.type" button-style="solid">
+            <a-radio-button @click="switchType(1)" value="command"
+              >指令奖励</a-radio-button
+            >
+            <a-radio-button @click="switchType(2)" value="item">物品奖励</a-radio-button>
+          </a-radio-group>
+        </a-form-item>
+
+        <a-form-item v-if="addform.type == 'command'" label="指令内容：">
+          <template v-for="(tag, index) in command_state.command_tags" :key="tag">
+            <a-tooltip v-if="tag.length > 20" :title="tag">
+              <a-tag :closable="index !== 0" @close="command_handleClose(tag)">
+                {{ `${tag.slice(0, 20)}...` }}
+              </a-tag>
+            </a-tooltip>
+            <a-tag v-else closable @close="command_handleClose(tag)">
+              {{ tag }}
+            </a-tag>
+          </template>
+          <a-input
+            v-if="command_state.command_inputVisible"
+            ref="command_inputRef"
+            type="text"
+            size="small"
+            :style="{ width: '78px' }"
+            v-model:value="command_state.command_inputValue"
+            @blur="command_handleInputConfirm"
+            @keyup.enter="command_handleInputConfirm"
+          />
+          <a-tag
+            v-else
+            @click="command_showInput"
+            style="background: #fff; border-style: dashed"
+          >
+            <plus-outlined />
+            新增指令
+          </a-tag>
+        </a-form-item>
+
+        <a-form-item v-if="addform.type == 'item'" label="物品内容：">
+          <a-button @click="addItem(item)" v-if="addform.items.length == 0" type="primary"
+            >新增物品</a-button
+          >
+          <div v-if="addform.items.length > 0">
+            <a-card
+              v-for="item in addform.items"
+              title="任务展示配置"
+              style="width: 500px; margin-top: 30px"
+            >
+              <template #actions>
+                <AppstoreAddOutlined @click="addItem(item)" key="add" />
+                <CopyFilled @click="copyItem(item)" key="copy" />
+                <DeleteFilled @click="removeItem(item)" key="delete" />
+              </template>
+              <template #extra></template>
+              <a-form-item label="展示道具(会迭代成选择框)">
+                <a-input
+                  v-model:value="item.material"
+                  style="width: 200px; margin-left: 10px"
+                />
+              </a-form-item>
+              <a-form-item label="道具名称">
+                <a-input
+                  v-model:value="item.name"
+                  style="width: 200px; margin-left: 10px"
+                />
+              </a-form-item>
+              <a-form-item label="道具数量">
+                <a-input-number id="inputNumber" v-model:value="item.amount" :min="1" />
+              </a-form-item>
+              <a-form-item label="是否有附魔效果">
+                <a-switch v-model:checked="item.glow" />
+              </a-form-item>
+              <a-form-item label="奖励物品说明：">
+                <a-input-number id="inputNumber" v-model:value="item.lore" :min="1" />
+              </a-form-item>
+            </a-card>
+          </div>
+        </a-form-item>
+      </a-form>
+      {{ addform }}
+    </a-drawer>
+  </div>
 </template>
 
 <script setup>
-import { CopyFilled, EditOutlined, DeleteFilled, PlusOutlined } from '@ant-design/icons-vue';
-import Prism from 'prismjs';
-import 'prismjs/components/prism-yaml.min.js'; // 需要加载 YAML 语言定义
-import jsYaml from 'js-yaml';
-import { onMounted, onUpdated, ref, reactive } from "vue";
-import { Drawer } from 'ant-design-vue';
+import {
+  CopyFilled,
+  EditOutlined,
+  DeleteFilled,
+  PlusOutlined,
+  AppstoreAddOutlined,
+} from "@ant-design/icons-vue";
+import Prism from "prismjs";
+import "prismjs/components/prism-yaml.min.js"; // 需要加载 YAML 语言定义
+import jsYaml from "js-yaml";
+import {
+  onMounted,
+  onUpdated,
+  ref,
+  reactive,
+  watch,
+  defineComponent,
+  toRefs,
+  nextTick,
+} from "vue";
+import { Drawer, Tag, TreeSelect, Radio } from "ant-design-vue";
+//物品奖励
+
+//卡片渲染
+const cards = ref({
+  quests: [],
+});
+//基础数据
+let yaml = ref("quests:  \n");
+
+const addform = ref({
+  taskId: cards.value.quests.length == 0 ? 1 : cards.value.quests.length + 1,
+  type: "command",
+  commands: [],
+  name: "",
+  lore_addon: [],
+  points: "",
+  items: [],
+});
+
+//指令说明
+const command_inputRef = ref();
+
+const command_state = reactive({
+  command_tags: [],
+  command_inputVisible: false,
+  command_inputValue: "",
+});
+
+const command_handleClose = (removedTag) => {
+  const command_tags = command_state.command_tags.filter(
+    (command_tag) => command_tag !== removedTag
+  );
+  command_state.command_tags = command_tags;
+  addform.value.command_addon = command_state.command_tags;
+};
+
+const command_showInput = () => {
+  command_state.command_inputVisible = true;
+  nextTick(() => {
+    command_inputRef.value.focus();
+  });
+};
+
+const command_handleInputConfirm = () => {
+  const command_inputValue = command_state.command_inputValue;
+  let command_tags = command_state.command_tags;
+  if (command_inputValue && command_tags.indexOf(command_inputValue) === -1) {
+    command_tags = [...command_tags, command_inputValue];
+  }
+  Object.assign(command_state, {
+    command_tags,
+    command_inputVisible: false,
+    command_inputValue: "",
+  });
+  addform.value.commands = command_tags;
+};
+
+//奖励说明
+const lore_inputRef = ref();
+
+const lore_state = reactive({
+  lore_tags: [],
+  lore_inputVisible: false,
+  lore_inputValue: "",
+});
+
+const lore_handleClose = (removedTag) => {
+  const lore_tags = lore_state.lore_tags.filter((lore_tag) => lore_tag !== removedTag);
+  lore_state.lore_tags = lore_tags;
+  addform.value.lore_addon = lore_state.lore_tags;
+};
+
+const lore_showInput = () => {
+  lore_state.lore_inputVisible = true;
+  nextTick(() => {
+    lore_inputRef.value.focus();
+  });
+};
+
+const lore_handleInputConfirm = () => {
+  const lore_inputValue = lore_state.lore_inputValue;
+  console.log(lore_inputValue);
+  let lore_tags = lore_state.lore_tags;
+  if (lore_inputValue && lore_tags.indexOf(lore_inputValue) === -1) {
+    lore_tags = [...lore_tags, lore_inputValue];
+  }
+  Object.assign(lore_state, {
+    lore_tags,
+    lore_inputVisible: false,
+    lore_inputValue: "",
+  });
+  addform.value.lore_addon = lore_tags;
+};
+
+const radioStyle = reactive({
+  display: "block",
+  height: "30px",
+  lineHeight: "30px",
+});
+
+//卡片功能
+const removeItem = (item) => {
+  let index = item.taskId - 1;
+  if (index > -1 && index < cards.value.quests.length) {
+    cards.value.quests.splice(index, 1);
+  }
+  for (let i = 0; i < cards.value.quests.length; i++) {
+    cards.value.quests[i].taskId = i + 1;
+  }
+  handleYml();
+};
+
+const addItem = () => {
+  let item = {
+    material: "",
+    name: "",
+    amount: 1,
+    glow: true,
+    lore: [],
+  };
+  addform.value.items.push(item);
+};
+
+const copyItem = (item) => {
+  let newItem = { ...item }; // 创建一个新的对象并复制原始对象的属性
+  newItem.taskId = cards.value.quests.length + 1;
+  cards.value.quests.push(newItem);
+  handleYml();
+};
+
+//抽屉功能
+
+//卡片功能
+const remove = (item) => {
+  let index = item.taskId - 1;
+  if (index > -1 && index < cards.value.quests.length) {
+    cards.value.quests.splice(index, 1);
+  }
+  for (let i = 0; i < cards.value.quests.length; i++) {
+    cards.value.quests[i].taskId = i + 1;
+  }
+  handleYml();
+};
+
+const edit = (item) => {
+  lore_state.lore_tags = item.item.lore;
+  addform.value = item;
+  open.value = true;
+};
+
+const copy = (item) => {
+  let newItem = { ...item }; // 创建一个新的对象并复制原始对象的属性
+  newItem.taskId = cards.value.quests.length + 1;
+  cards.value.quests.push(newItem);
+  handleYml();
+};
+
+//选择类型
+const switchType = (value) => {
+  if (value == 1) {
+    addform.value.items = [];
+  } else if (value == 2) {
+    addform.value.commands = [];
+    command_state.command_tags = [];
+  }
+};
+
+//抽屉开关
 const open = ref(false);
 
-const onClose = () => {
+//打开抽屉
+const add = () => {
+  addform.value.taskId =
+    cards.value.quests.length == 0 ? 1 : cards.value.quests.length + 1;
+  open.value = true;
+};
+//保存内容
+const save = () => {
+  if (cards.value.quests[addform.value.taskId - 1] !== undefined) {
+    cards.value.quests[addform.value.taskId - 1] = addform.value;
+  } else {
+    let task = {
+      taskId: addform.value.taskId,
+      type: addform.value.type,
+      variable: addform.value.variable,
+      name: addform.value.name,
+      required_progress: addform.value.required_progress,
+      points: addform.value.points,
+      item: {
+        material: addform.value.item.material,
+        name: addform.value.item.name,
+        lore: addform.value.item.lore,
+      },
+    };
+
+    cards.value.quests.push(task);
+  }
+
+  lore_state.lore_tags = [];
+  addform.value = {
+    taskId: cards.value.quests.length == 0 ? 1 : cards.value.quests.length + 1,
+    type: "",
+    name: "",
+    lore_addon: "",
+    commands: [],
+    item: {
+      material: "",
+      name: "",
+      lore: [],
+    },
+  };
+
+  handleYml();
   open.value = false;
 };
-onUpdated(() => {
-    Prism.highlightAll(); //修改内容后重新渲染
-});
-onMounted(() => {
-    Prism.highlightAll(); //切换菜单重新渲染
-})
-
-const cards = ref([])
-
-const add = () => {
-    open.value = true;
-    console.log("Add method called");
+//抽屉开关方法
+const onClose = () => {
+  lore_state.lore_tags = [];
+  addform.value = {
+    taskId: cards.value.quests.length == 0 ? 1 : cards.value.quests.length + 1,
+    type: "",
+    variable: "none",
+    name: "",
+    required_progress: "",
+    points: "",
+    item: {
+      material: "",
+      name: "",
+      lore: [],
+    },
+  };
+  open.value = false;
 };
 
-let highlightedYaml = ref('key: value \n key: value \n key: value \n key: value \n key: value \n');
+//代码预览
+const handleYml = () => {
+  //处理yml
 
+  let yamlString = "quests: \n";
 
+  for (let v = 0; v < cards.value.quests.length; v++) {
+    yamlString += "  " + cards.value.quests[v].taskId + ":\n";
+    yamlString += "    type: " + cards.value.quests[v].type + "\n";
+    yamlString += "    variable: " + cards.value.quests[v].variable + "\n";
+    yamlString += "    name: " + cards.value.quests[v].name + "\n";
+    yamlString +=
+      "    required-progress: " + cards.value.quests[v].requiredProgress + "\n";
+    yamlString += "    points: " + cards.value.quests[v].points + "\n";
+    yamlString += "    item:\n";
+    yamlString += "      material: " + cards.value.quests[v].item.material + "\n";
+    yamlString += "      name: " + cards.value.quests[v].item.name + "\n";
+    yamlString += "      lore:\n";
+    for (let i = 0; i < cards.value.quests[v].item.lore.length; i++) {
+      yamlString += "      - " + cards.value.quests[v].item.lore[i] + "\n";
+    }
+  }
+  yaml.value = jsYaml
+    .dump(yamlString)
+    .replace("|", "")
+    .replace(/^\s+|\s+$/g, "");
+};
+
+//监听内容更新
+onUpdated(() => {
+  Prism.highlightAll(); //修改内容后重新渲染
+});
+onMounted(() => {
+  Prism.highlightAll(); //切换菜单重新渲染
+});
 </script>
 
 <style scoped>
 .card.add {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 50px;
-    color: #1890ff;
-    cursor: pointer;
-    border: 1px dashed #1890ff;
-    border-radius: 5px;
-    transition: all 0.3s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 50px;
+  color: #1890ff;
+  cursor: pointer;
+  border: 1px dashed #1890ff;
+  border-radius: 5px;
+  transition: all 0.3s;
+  height: 250px;
+}
+
+.custom-card {
+  display: flex;
+  justify-content: left;
+  align-items: left;
+  flex-wrap: wrap;
 }
 
 .card {
-    width: 27%;
-    margin: 3%;
+  width: 250px;
+  margin: 3%;
 }
 
 ::v-deep .code-toolbar {
-    width: 100%;
-    /* right: -17.8em !important; */
+  width: 100%;
+  /* right: -17.8em !important; */
 }
 
 .container {
-    display: flex;
+  display: flex;
 }
 
 .settings {
-    flex-wrap: wrap;
-    flex-direction: row;
-    display: flex;
-    margin-top: 7px;
-    width: 50vw;
-    flex: 1;
+  flex-wrap: wrap;
+  flex-direction: row;
+  display: flex;
+  margin-top: 7px;
+  width: 60vw;
 }
 
 .preview {
-    width: 50vw;
-    flex: 1;
+  width: 650px;
 }
 
 pre {
-    margin-top: 4%;
-    overflow: hidden !important;
+  margin-top: 7%;
+  overflow: hidden !important;
 
-    code {
-        display: inline-block;
-        padding-bottom: 20px;
-        position: relative;
-        top: 20px;
-    }
+  code {
+    display: inline-block;
+    padding-bottom: 20px;
+    position: relative;
+    top: 20px;
+  }
 
-    &::before {
-        content: "";
-        position: absolute;
-        background: red;
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        top: 10px;
-        left: 15px;
-        transform: translate(-50%);
-    }
+  &::before {
+    content: "";
+    position: absolute;
+    background: red;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    top: 10px;
+    left: 15px;
+    transform: translate(-50%);
+  }
 
+  &::after {
+    content: "";
+    position: absolute;
+    background: sandybrown;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    top: 10px;
+    left: 30px;
+    transform: translate(-50%);
+  }
+
+  code:first-child {
     &::after {
-        content: "";
-        position: absolute;
-        background: sandybrown;
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        top: 10px;
-        left: 30px;
-        transform: translate(-50%);
+      content: "";
+      position: absolute;
+      background: limegreen;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      top: -26px;
+      left: -15px;
+      transform: translate(-50%);
     }
-
-    code:first-child {
-        &::after {
-            content: "";
-            position: absolute;
-            background: limegreen;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            top: -26px;
-            left: -15px;
-            transform: translate(-50%);
-        }
-    }
+  }
 }
 </style>

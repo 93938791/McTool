@@ -4,15 +4,54 @@
       <a-card :onclick="add" class="card add" width="100%">
         <PlusOutlined style="font-size: 50px" />
       </a-card>
-      <div class="card" v-for="card in cards.quests">
-        <a-card width="100%" title="Card title">
-          <template #actions>
-            <CopyFilled key="copy" />
-            <edit-outlined key="edit" />
-            <DeleteFilled key="delete" />
+      <div class="card" v-for="item in cards.quests">
+        <a-card width="100%">
+          <template #title>
+            <div>
+              <span style="float: right">{{ item.name }}</span>
+              <a-tag color="green">{{ item.taskId }}</a-tag>
+            </div>
           </template>
-
-          <p>我是卡片还没完善</p>
+          <template #actions>
+            <CopyFilled @click="copy(item)" key="copy" />
+            <edit-outlined @click="edit(item)" key="edit" />
+            <DeleteFilled @click="remove(item)" key="delete" />
+          </template>
+          <div class="custom-card">
+            <a-popover trigger="hover">
+              <template #content>
+                <p>{{ item.type }}</p>
+              </template>
+              <a-button>任务类型</a-button>
+            </a-popover>
+            <a-popover trigger="hover">
+              <template #content>
+                <p>{{ item.variable }}</p>
+              </template>
+              <a-button>验证条件</a-button>
+            </a-popover>
+            <a-popover trigger="hover">
+              <template #content>
+                <p>{{ item.required_progress }}</p>
+              </template>
+              <a-button>需要进度</a-button>
+            </a-popover>
+            <a-popover trigger="hover">
+              <template #content>
+                <p>{{ item.points }}</p>
+              </template>
+              <a-button>奖励进度点</a-button>
+            </a-popover>
+            <a-popover trigger="hover">
+              <template #content>
+                <p>展示道具: {{ item.item.material }}</p>
+                <p>道具名称: {{ item.item.name }}</p>
+                <p>道具说明:</p>
+                <p v-for="lore in item.item.lore">{{ lore }}</p>
+              </template>
+              <a-button>任务展示配置</a-button>
+            </a-popover>
+          </div>
         </a-card>
       </div>
     </div>
@@ -22,7 +61,7 @@
     <a-drawer :width="800" title="每日任务设置" :open="open" @close="onClose">
       <template #extra>
         <a-button style="margin-right: 8px" @click="onClose">关闭</a-button>
-        <a-button type="primary" @click="save">保存</a-button>
+        <a-button type="primary" @click="save()">保存</a-button>
       </template>
       <a-form :model="addform">
         <a-form-item label="任务id">
@@ -73,7 +112,7 @@
         </a-form-item>
 
         <a-card title="任务展示配置" style="width: 500px">
-          <template #extra><a href="#">more</a></template>
+          <template #extra></template>
           <a-form-item label="展示道具(会迭代成选择框)">
             <a-input
               v-model:value="addform.item.material"
@@ -93,7 +132,7 @@
                   {{ `${tag.slice(0, 20)}...` }}
                 </a-tag>
               </a-tooltip>
-              <a-tag v-else :closable="index !== 0" @close="handleClose(tag)">
+              <a-tag v-else closable @close="handleClose(tag)">
                 {{ tag }}
               </a-tag>
             </template>
@@ -144,6 +183,30 @@ import {
 } from "vue";
 import { Drawer, Tag, TreeSelect, Radio } from "ant-design-vue";
 
+const remove = (item) => {
+  let index = item.taskId - 1;
+  if (index > -1 && index < cards.value.quests.length) {
+    cards.value.quests.splice(index, 1);
+  }
+  for (let i = 0; i < cards.value.quests.length; i++) {
+    cards.value.quests[i].taskId = i + 1;
+  }
+  handleYml();
+};
+
+const edit = (item) => {
+  state.tags = item.item.lore;
+  addform.value = item;
+  open.value = true;
+};
+
+const copy = (item) => {
+  let newItem = { ...item }; // 创建一个新的对象并复制原始对象的属性
+  newItem.taskId = cards.value.quests.length + 1;
+  cards.value.quests.push(newItem);
+  handleYml();
+};
+
 const inputRef = ref();
 const state = reactive({
   tags: [],
@@ -153,8 +216,8 @@ const state = reactive({
 
 const handleClose = (removedTag) => {
   const tags = state.tags.filter((tag) => tag !== removedTag);
-  console.log(tags);
   state.tags = tags;
+  addform.value.item.lore = state.tags;
 };
 
 const showInput = () => {
@@ -177,9 +240,6 @@ const handleInputConfirm = () => {
   });
   addform.value.item.lore = tags;
 };
-
-
-
 
 const variableValue = ref(1);
 const radioStyle = reactive({
@@ -407,27 +467,53 @@ const treeData = [
 //抽屉开关
 const open = ref(false);
 
+const handleYml = () => {
+  //处理yml
+
+  let yamlString = "quests: \n";
+
+  for (let v = 0; v < cards.value.quests.length; v++) {
+    yamlString += "  '" + cards.value.quests[v].taskId + "':\n";
+    yamlString += "    type: " + cards.value.quests[v].type + "\n";
+    yamlString += "    variable: " + cards.value.quests[v].variable + "\n";
+    yamlString += "    name: " + cards.value.quests[v].name + "\n";
+    yamlString +=
+      "    required-progress: " + cards.value.quests[v].requiredProgress + "\n";
+    yamlString += "    points: " + cards.value.quests[v].points + "\n";
+    yamlString += "    item:\n";
+    yamlString += "      material: " + cards.value.quests[v].item.material + "\n";
+    yamlString += "      name: " + cards.value.quests[v].item.name + "\n";
+    yamlString += "      lore:\n";
+    for (let i = 0; i < cards.value.quests[v].item.lore.length; i++) {
+      yamlString += "      - " + cards.value.quests[v].item.lore[i] + "\n";
+    }
+  }
+  yaml.value = jsYaml
+    .dump(yamlString)
+    .replace("|", "")
+    .replace(/^\s+|\s+$/g, "");
+};
 
 const save = () => {
-
-  let taskid = String(+addform.value.taskId);
-  let task = {
-    [taskid]:{
+  if (cards.value.quests[addform.value.taskId - 1] !== undefined) {
+    cards.value.quests[addform.value.taskId - 1] = addform.value;
+  } else {
+    let task = {
+      taskId: addform.value.taskId,
       type: addform.value.type,
       variable: addform.value.variable,
       name: addform.value.name,
-      'required-progress': addform.value.required_progress,
+      required_progress: addform.value.required_progress,
       points: addform.value.points,
       item: {
         material: addform.value.item.material,
         name: addform.value.item.name,
         lore: addform.value.item.lore,
       },
-    }
-  }
+    };
 
-  cards.value.quests.push(task);
-  yaml.value = jsYaml.dump(cards.value.quests);
+    cards.value.quests.push(task);
+  }
 
   state.tags = [];
   addform.value = {
@@ -444,6 +530,7 @@ const save = () => {
     },
   };
 
+  handleYml();
   open.value = false;
 };
 //抽屉开关方法
@@ -465,9 +552,7 @@ const onClose = () => {
   open.value = false;
 };
 const value = ref();
-watch(value, () => {
-  console.log(value.value);
-});
+watch(value, () => {});
 //监听内容更新
 onUpdated(() => {
   Prism.highlightAll(); //修改内容后重新渲染
@@ -481,10 +566,12 @@ const cards = ref({
 });
 //打开抽屉
 const add = () => {
+  addform.value.taskId =
+    cards.value.quests.length == 0 ? 1 : cards.value.quests.length + 1;
   open.value = true;
 };
 //yaml内容
-let yaml = ref("key: value \n");
+let yaml = ref("quests:  \n");
 
 const addform = ref({
   taskId: cards.value.quests.length == 0 ? 1 : cards.value.quests.length + 1,
@@ -512,11 +599,18 @@ const addform = ref({
   border: 1px dashed #1890ff;
   border-radius: 5px;
   transition: all 0.3s;
-  height: 203px;
+  height: 250px;
+}
+
+.custom-card {
+  display: flex;
+  justify-content: left;
+  align-items: left;
+  flex-wrap: wrap;
 }
 
 .card {
-  width: 27%;
+  width: 250px;
   margin: 3%;
 }
 
@@ -534,17 +628,15 @@ const addform = ref({
   flex-direction: row;
   display: flex;
   margin-top: 7px;
-  width: 50vw;
-  flex: 1;
+  width: 60vw;
 }
 
 .preview {
-  width: 50vw;
-  flex: 1;
+  width: 650px;
 }
 
 pre {
-  margin-top: 4%;
+  margin-top: 7%;
   overflow: hidden !important;
 
   code {
