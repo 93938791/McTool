@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { SpeedInsights } from "@vercel/speed-insights/vue";
+import { Analytics } from "@vercel/analytics/react";
 </script>
 
 <template>
   <SpeedInsights />
+  <Analytics />
   <router-view />
 </template>
 
