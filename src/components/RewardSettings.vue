@@ -248,17 +248,26 @@ import {
   defineComponent,
   toRefs,
   nextTick,
+  computed,
 } from "vue";
 import { Drawer, Tag, TreeSelect, Radio } from "ant-design-vue";
 import { useStore } from "vuex";
 import RewardStore from "@/store/modules/RewardStore";
+const store = useStore();
 
 //卡片渲染
-const cards = ref({
-  quests: [],
+let cards = ref([]);
+cards = computed(() => store.state.RewardStore.cards);
+
+watch(cards, (newCards, oldCards) => {
+  if (newCards !== oldCards) {
+    store.dispatch("RewardStore/setCards", newCards);
+  }
 });
 
-const store = useStore();
+onMounted(() => {
+  handleYml();
+});
 
 watch(cards, (newCards) => {
   console.log(newCards);
@@ -268,7 +277,7 @@ watch(cards, (newCards) => {
 //物品奖励
 
 //基础数据
-let yaml = ref("'1':  \n");
+let yaml = ref({});
 
 const addform = ref({
   taskId: cards.value.quests.length == 0 ? 1 : cards.value.quests.length + 1,

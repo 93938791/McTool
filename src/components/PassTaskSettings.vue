@@ -186,6 +186,7 @@ import {
   defineComponent,
   toRefs,
   nextTick,
+  computed,
 } from "vue";
 import { Drawer, Tag, TreeSelect, Radio } from "ant-design-vue";
 import {
@@ -199,8 +200,15 @@ const rewards = store.state.RewardStore.cards;
 //物品奖励
 
 //卡片渲染
-const cards = ref({
-  quests: [],
+let cards = ref([]);
+cards = computed(() => store.state.PassTaskStore.cards);
+watch(cards, (newCards, oldCards) => {
+  if (newCards !== oldCards) {
+    store.dispatch("PassTaskStore/setPassTaskStoreData", newCards);
+  }
+});
+onMounted(() => {
+  handleYml();
 });
 //基础数据
 let yaml = ref("tiers: \n");

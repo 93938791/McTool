@@ -1,7 +1,9 @@
 const RewardStore = {
     namespaced: true,  // 这一行非常重要，它启用了 Vuex module 的命名空间
     state: {
-      cards: []
+      cards: {
+        quests: [] // 初始化 rewards 为一个空数组
+      }
     },
     mutations: {
       SET_CARDS(state, cards) {

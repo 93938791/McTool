@@ -181,8 +181,38 @@ import {
   defineComponent,
   toRefs,
   nextTick,
+  computed,
 } from "vue";
 import { Drawer, Tag, TreeSelect, Radio } from "ant-design-vue";
+import { useStore } from "vuex";
+
+const store = useStore();
+let cards = ref([]);
+
+cards = computed(() => store.state.WeeklyStore.cards);
+
+watch(cards, (newCards, oldCards) => {
+  if (newCards !== oldCards) {
+    store.dispatch("WeeklyStore/setWeeklyData", newCards);
+  }
+});
+onMounted(() => {
+  handleYml();
+});
+
+const addform = ref({
+  taskId: cards.value.quests.length == 0 ? 1 : cards.value.quests.length + 1,
+  type: "",
+  variable: "none",
+  name: "",
+  required_progress: "",
+  points: "",
+  item: {
+    material: "",
+    name: "",
+    lore: [],
+  },
+});
 
 const remove = (item) => {
   let index = item.taskId - 1;
@@ -474,19 +504,18 @@ const handleYml = () => {
   let yamlString = "quests: \n";
 
   for (let v = 0; v < cards.value.quests.length; v++) {
-    yamlString += "  " + cards.value.quests[v].taskId + ":\n";
-    yamlString += "    type: " + cards.value.quests[v].type + "\n";
-    yamlString += "    variable: " + cards.value.quests[v].variable + "\n";
-    yamlString += "    name: " + cards.value.quests[v].name + "\n";
-    yamlString +=
-      "    required-progress: " + cards.value.quests[v].requiredProgress + "\n";
-    yamlString += "    points: " + cards.value.quests[v].points + "\n";
-    yamlString += "    item:\n";
-    yamlString += "      material: " + cards.value.quests[v].item.material + "\n";
-    yamlString += "      name: " + cards.value.quests[v].item.name + "\n";
-    yamlString += "      lore:\n";
+    yamlString += "" + cards.value.quests[v].taskId + ":\n";
+    yamlString += "  type: " + cards.value.quests[v].type + "\n";
+    yamlString += "  variable: " + cards.value.quests[v].variable + "\n";
+    yamlString += "  name: " + cards.value.quests[v].name + "\n";
+    yamlString += "  required-progress: " + cards.value.quests[v].requiredProgress + "\n";
+    yamlString += "  points: " + cards.value.quests[v].points + "\n";
+    yamlString += "  item:\n";
+    yamlString += "    material: " + cards.value.quests[v].item.material + "\n";
+    yamlString += "    name: " + cards.value.quests[v].item.name + "\n";
+    yamlString += "    lore:\n";
     for (let i = 0; i < cards.value.quests[v].item.lore.length; i++) {
-      yamlString += "      - " + cards.value.quests[v].item.lore[i] + "\n";
+      yamlString += "    - " + cards.value.quests[v].item.lore[i] + "\n";
     }
   }
   yaml.value = jsYaml
@@ -561,10 +590,7 @@ onUpdated(() => {
 onMounted(() => {
   Prism.highlightAll(); //切换菜单重新渲染
 });
-//卡片渲染
-const cards = ref({
-  quests: [],
-});
+
 //打开抽屉
 const add = () => {
   addform.value.taskId =
@@ -573,20 +599,6 @@ const add = () => {
 };
 //yaml内容
 let yaml = ref("quests:  \n");
-
-const addform = ref({
-  taskId: cards.value.quests.length == 0 ? 1 : cards.value.quests.length + 1,
-  type: "",
-  variable: "none",
-  name: "",
-  required_progress: "",
-  points: "",
-  item: {
-    material: "",
-    name: "",
-    lore: [],
-  },
-});
 </script>
 
 <style scoped>
