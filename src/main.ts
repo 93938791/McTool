@@ -1,5 +1,5 @@
 import { createApp } from 'vue'
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import App from './App.vue'
 import store from '@/store'
 // 定义路由
@@ -10,7 +10,7 @@ const routes = [
 
 // 创建路由器实例
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHashHistory(),
   routes,
 })
 
