@@ -329,6 +329,11 @@
   dependencies:
     undici-types "~5.26.4"
 
+"@vercel/speed-insights@^1.0.10":
+  version "1.0.10"
+  resolved "https://registry.npmjs.org/@vercel/speed-insights/-/speed-insights-1.0.10.tgz"
+  integrity sha512-4uzdKB0RW6Ff2FkzshzjZ+RlJfLPxgm/00i0XXgxfMPhwnnsk92YgtqsxT9OcPLdJUyVU1DqFlSWWjIQMPkh0g==
+
 "@vitejs/plugin-vue@^5.0.4":
   version "5.0.4"
   resolved "https://registry.npmjs.org/@vitejs/plugin-vue/-/plugin-vue-5.0.4.tgz"
@@ -1207,7 +1212,7 @@ vite@^5.0.0, vite@^5.2.0:
   optionalDependencies:
     fsevents "~2.3.3"
 
-vue-router@^4.0.13:
+vue-router@^4, vue-router@^4.0.13:
   version "4.0.13"
   resolved "https://registry.npmjs.org/vue-router/-/vue-router-4.0.13.tgz"
   integrity sha512-LmXrC+BkDRLak+d5xTMgUYraT3Nj0H/vCbP+7usGvIl9Viqd1UP6AsP0i69pSbn9O0dXK/xCdp4yPw21HqV9Jw==
@@ -1238,7 +1243,7 @@ vue-types@^3.0.0:
   dependencies:
     is-plain-object "3.0.1"
 
-vue@^3.0.0, vue@^3.2.0, vue@^3.2.25, vue@^3.4.21, vue@>=3.0.3, vue@>=3.2.0, "vue@2 || 3", vue@3.4.25:
+vue@^3, vue@^3.0.0, vue@^3.2.0, vue@^3.2.25, vue@^3.4.21, vue@>=3.0.3, vue@>=3.2.0, "vue@2 || 3", vue@3.4.25:
   version "3.4.25"
   resolved "https://registry.npmjs.org/vue/-/vue-3.4.25.tgz"
   integrity sha512-HWyDqoBHMgav/OKiYA2ZQg+kjfMgLt/T0vg4cbIF7JbXAjDexRf5JRg+PWAfrAkSmTd2I8aPSXtooBFWHB98cg==
