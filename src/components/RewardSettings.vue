@@ -28,19 +28,29 @@
             <a-popover trigger="hover">
               <template #content>
                 <p>奖励说明:</p>
-                <p v-for="lore in item.item.lore_addon">{{ lore }}</p>
+                <p v-for="lore in item.lore_addon">{{ lore }}</p>
               </template>
-              <a-button>奖励说明配置</a-button>
+              <a-button>奖励说明</a-button>
             </a-popover>
-
-            <a-popover v-if="item.type == 'item'" trigger="hover">
+            <a-popover
+              :overlayStyle="{ width: 'auto' }"
+              v-if="item.type == 'item'"
+              trigger="hover"
+            >
               <template #content>
-                <p>展示道具: {{ item.item.material }}</p>
-                <p>道具数量: {{ item.item.amount }}</p>
-                <p>道具名称: {{ item.item.name }}</p>
-                <p>物品是否发光: {{ item.item.glow }}</p>
-                <p>道具说明:</p>
-                <p v-for="lore in item.item.lore">{{ lore }}</p>
+                <a-card title="物品奖励说明">
+                  <a-card-grid
+                    v-for="itemInfo in item.items"
+                    style="width: 100%; text-align: left"
+                  >
+                    <p>道具名称: {{ itemInfo.name }}</p>
+                    <p>展示道具: {{ itemInfo.material }}</p>
+                    <p>道具数量: {{ itemInfo.amount }}</p>
+                    <p>物品是否发光: {{ itemInfo.glow }}</p>
+                    <p>道具说明:</p>
+                    <p v-for="lore in itemInfo.lore_addon">{{ lore }}</p>
+                  </a-card-grid>
+                </a-card>
               </template>
               <a-button>物品奖励</a-button>
             </a-popover>
@@ -48,7 +58,7 @@
             <a-popover v-if="item.type == 'command'" trigger="hover">
               <template #content>
                 <p>执行指令:</p>
-                <p v-for="lore in item.item.lore_addon">{{ lore }}</p>
+                <p v-for="lore in item.lore_addon">{{ lore }}</p>
               </template>
               <a-button>指令奖励</a-button>
             </a-popover>
@@ -60,6 +70,7 @@
     <div class="preview">
       <pre><code class="language-yaml line-numbers">{{ yaml }}</code></pre>
     </div>
+
     <a-drawer :width="800" title="通行证奖励设置" :open="open" @close="onClose">
       <template #extra>
         <a-button style="margin-right: 8px" @click="onClose">关闭</a-button>
@@ -74,7 +85,7 @@
         </a-form-item>
 
         <a-form-item label="奖励说明">
-          <template v-for="(tag, index) in lore_state.lore_tags" :key="tag">
+          <template v-for="(tag, index) in addform.lore_addon" :key="tag">
             <a-tooltip v-if="tag.length > 20" :title="tag">
               <a-tag :closable="index !== 0" @close="lore_handleClose(tag)">
                 {{ `${tag.slice(0, 20)}...` }}
@@ -145,13 +156,13 @@
         </a-form-item>
 
         <a-form-item v-if="addform.type == 'item'" label="物品内容：">
-          <a-button @click="addItem(item)" v-if="addform.items.length == 0" type="primary"
+          <a-button @click="addItem()" v-if="addform.items.length == 0" type="primary"
             >新增物品</a-button
           >
           <div v-if="addform.items.length > 0">
             <a-card
               v-for="item in addform.items"
-              title="任务展示配置"
+              title="物品奖励配置"
               style="width: 500px; margin-top: 30px"
             >
               <template #actions>
@@ -178,14 +189,41 @@
               <a-form-item label="是否有附魔效果">
                 <a-switch v-model:checked="item.glow" />
               </a-form-item>
+
               <a-form-item label="奖励物品说明：">
-                <a-input-number id="inputNumber" v-model:value="item.lore" :min="1" />
+                <template v-for="(tag, index) in item.lore" :key="tag">
+                  <a-tooltip v-if="tag.length > 20" :title="tag">
+                    <a-tag closable @close="item_handleClose(tag, item)">
+                      {{ `${tag.slice(0, 20)}...` }}
+                    </a-tag>
+                  </a-tooltip>
+                  <a-tag v-else closable @close="item_handleClose(tag, item)">
+                    {{ tag }}
+                  </a-tag>
+                </template>
+                <a-input
+                  v-if="item.item_inputVisible"
+                  ref="item_inputRef"
+                  type="text"
+                  size="small"
+                  :style="{ width: '78px' }"
+                  v-model:value="item.item_inputValue"
+                  @blur="item_handleInputConfirm(item)"
+                  @keyup.enter="item_handleInputConfirm(item)"
+                />
+                <a-tag
+                  v-else
+                  @click="item_showInput(item)"
+                  style="background: #fff; border-style: dashed"
+                >
+                  <plus-outlined />
+                  新增奖励物品说明
+                </a-tag>
               </a-form-item>
             </a-card>
           </div>
         </a-form-item>
       </a-form>
-      {{ addform }}
     </a-drawer>
   </div>
 </template>
@@ -212,14 +250,25 @@ import {
   nextTick,
 } from "vue";
 import { Drawer, Tag, TreeSelect, Radio } from "ant-design-vue";
-//物品奖励
+import { useStore } from "vuex";
+import RewardStore from "@/store/modules/RewardStore";
 
 //卡片渲染
 const cards = ref({
   quests: [],
 });
+
+const store = useStore();
+
+watch(cards, (newCards) => {
+  console.log(newCards);
+  store.dispatch("setCards", newCards);
+});
+
+//物品奖励
+
 //基础数据
-let yaml = ref("quests:  \n");
+let yaml = ref("'1':  \n");
 
 const addform = ref({
   taskId: cards.value.quests.length == 0 ? 1 : cards.value.quests.length + 1,
@@ -227,9 +276,51 @@ const addform = ref({
   commands: [],
   name: "",
   lore_addon: [],
-  points: "",
-  items: [],
+  items: [
+    {
+      material: "",
+      name: "",
+      amount: 1,
+      glow: true,
+      lore: [],
+      item_inputVisible: false,
+      item_inputValue: "",
+    },
+  ],
 });
+
+//物品说明
+const item_inputRef = ref();
+
+const item_state = reactive({
+  item_tags: [],
+  item_inputVisible: false,
+  item_inputValue: "",
+});
+
+const item_handleClose = (removedTag, item) => {
+  item.lore = item.lore.filter((item_tag) => item_tag !== removedTag);
+};
+
+const item_showInput = (item) => {
+  item.item_inputVisible = true;
+  item_inputRef.value = "";
+  nextTick(() => {});
+};
+
+const item_handleInputConfirm = (item) => {
+  const item_inputValue = item.item_inputValue;
+  let item_tags = item.lore;
+  if (item_inputValue && item_tags.indexOf(item_inputValue) === -1) {
+    item_tags = [...item_tags, item_inputValue];
+  }
+  Object.assign(item, {
+    item_tags,
+    item_inputVisible: false,
+    item_inputValue: "",
+  });
+  item.lore = item_tags;
+};
 
 //指令说明
 const command_inputRef = ref();
@@ -314,14 +405,10 @@ const radioStyle = reactive({
 
 //卡片功能
 const removeItem = (item) => {
-  let index = item.taskId - 1;
-  if (index > -1 && index < cards.value.quests.length) {
-    cards.value.quests.splice(index, 1);
+  let index = addform.value.items.indexOf(item);
+  if (index > -1 && index < addform.value.items.length) {
+    addform.value.items.splice(index, 1);
   }
-  for (let i = 0; i < cards.value.quests.length; i++) {
-    cards.value.quests[i].taskId = i + 1;
-  }
-  handleYml();
 };
 
 const addItem = () => {
@@ -338,8 +425,7 @@ const addItem = () => {
 const copyItem = (item) => {
   let newItem = { ...item }; // 创建一个新的对象并复制原始对象的属性
   newItem.taskId = cards.value.quests.length + 1;
-  cards.value.quests.push(newItem);
-  handleYml();
+  addform.value.items.push(newItem);
 };
 
 //抽屉功能
@@ -357,13 +443,14 @@ const remove = (item) => {
 };
 
 const edit = (item) => {
-  lore_state.lore_tags = item.item.lore;
+  addform.value.lore_addon = lore_state.lore_tags;
+  lore_state.lore_tags = item.lore_addon;
   addform.value = item;
   open.value = true;
 };
 
 const copy = (item) => {
-  let newItem = { ...item }; // 创建一个新的对象并复制原始对象的属性
+  let newItem = JSON.parse(JSON.stringify(item)); // 创建一个新的对象并复制原始对象的属性
   newItem.taskId = cards.value.quests.length + 1;
   cards.value.quests.push(newItem);
   handleYml();
@@ -386,6 +473,8 @@ const open = ref(false);
 const add = () => {
   addform.value.taskId =
     cards.value.quests.length == 0 ? 1 : cards.value.quests.length + 1;
+  addform.value.commands = [];
+  command_state.command_tags = [];
   open.value = true;
 };
 //保存内容
@@ -393,35 +482,27 @@ const save = () => {
   if (cards.value.quests[addform.value.taskId - 1] !== undefined) {
     cards.value.quests[addform.value.taskId - 1] = addform.value;
   } else {
-    let task = {
-      taskId: addform.value.taskId,
-      type: addform.value.type,
-      variable: addform.value.variable,
-      name: addform.value.name,
-      required_progress: addform.value.required_progress,
-      points: addform.value.points,
-      item: {
-        material: addform.value.item.material,
-        name: addform.value.item.name,
-        lore: addform.value.item.lore,
-      },
-    };
-
-    cards.value.quests.push(task);
+    cards.value.quests.push(addform.value);
   }
 
   lore_state.lore_tags = [];
   addform.value = {
     taskId: cards.value.quests.length == 0 ? 1 : cards.value.quests.length + 1,
-    type: "",
-    name: "",
-    lore_addon: "",
+    type: "command",
     commands: [],
-    item: {
-      material: "",
-      name: "",
-      lore: [],
-    },
+    name: "",
+    lore_addon: [],
+    items: [
+      {
+        material: "",
+        name: "",
+        amount: 1,
+        glow: true,
+        lore: [],
+        item_inputVisible: false,
+        item_inputValue: "",
+      },
+    ],
   };
 
   handleYml();
@@ -432,16 +513,21 @@ const onClose = () => {
   lore_state.lore_tags = [];
   addform.value = {
     taskId: cards.value.quests.length == 0 ? 1 : cards.value.quests.length + 1,
-    type: "",
-    variable: "none",
+    type: "command",
+    commands: [],
     name: "",
-    required_progress: "",
-    points: "",
-    item: {
-      material: "",
-      name: "",
-      lore: [],
-    },
+    lore_addon: [],
+    items: [
+      {
+        material: "",
+        name: "",
+        amount: 1,
+        glow: true,
+        lore: [],
+        item_inputVisible: false,
+        item_inputValue: "",
+      },
+    ],
   };
   open.value = false;
 };
@@ -449,33 +535,37 @@ const onClose = () => {
 //代码预览
 const handleYml = () => {
   //处理yml
-
-  let yamlString = "quests: \n";
+  let quests = {};
 
   for (let v = 0; v < cards.value.quests.length; v++) {
-    yamlString += "  " + cards.value.quests[v].taskId + ":\n";
-    yamlString += "    type: " + cards.value.quests[v].type + "\n";
-    yamlString += "    variable: " + cards.value.quests[v].variable + "\n";
-    yamlString += "    name: " + cards.value.quests[v].name + "\n";
-    yamlString +=
-      "    required-progress: " + cards.value.quests[v].requiredProgress + "\n";
-    yamlString += "    points: " + cards.value.quests[v].points + "\n";
-    yamlString += "    item:\n";
-    yamlString += "      material: " + cards.value.quests[v].item.material + "\n";
-    yamlString += "      name: " + cards.value.quests[v].item.name + "\n";
-    yamlString += "      lore:\n";
-    for (let i = 0; i < cards.value.quests[v].item.lore.length; i++) {
-      yamlString += "      - " + cards.value.quests[v].item.lore[i] + "\n";
+    let quest = cards.value.quests[v];
+    let items = {};
+
+    for (let i = 0; i < quest.items.length; i++) {
+      let item = quest.items[i];
+      items[i + 1] = {
+        material: item.material,
+        amount: item.amount,
+        name: item.name,
+        lore: item.lore,
+        glow: item.glow,
+      };
     }
+
+    quests[quest.taskId] = {
+      type: quest.type,
+      lore_addon: quest.lore_addon,
+      items: items,
+    };
   }
-  yaml.value = jsYaml
-    .dump(yamlString)
-    .replace("|", "")
-    .replace(/^\s+|\s+$/g, "");
+
+  let yamlString = jsYaml.dump(quests, { noRefs: true });
+  yaml.value = yamlString.replace("|", "").replace(/^\s+|\s+$/g, "");
 };
 
 //监听内容更新
 onUpdated(() => {
+  store.dispatch("RewardStore/setCards", cards.value);
   Prism.highlightAll(); //修改内容后重新渲染
 });
 onMounted(() => {
@@ -494,7 +584,7 @@ onMounted(() => {
   border: 1px dashed #1890ff;
   border-radius: 5px;
   transition: all 0.3s;
-  height: 250px;
+  height: 180px;
 }
 
 .custom-card {

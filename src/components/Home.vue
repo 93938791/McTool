@@ -1,46 +1,47 @@
 <template>
   <div class="container">
-    <header class="header">
-      <h1>欢迎来到首页</h1>
-    </header>
     <main class="main">
-      <p>点击下方按钮前往通行证配置页面</p>
-      <router-link class="button" to="/BattlePass">前往通行证配置</router-link>
+      <div class="card">
+        <h2>通行证配置</h2>
+        <p>BattlePass</p>
+        <router-link class="button" to="/BattlePass">前往通行证配置</router-link>
+      </div>
     </main>
-    <footer class="footer">
-      <p>© 2022 我的公司</p>
-    </footer>
   </div>
 </template>
 
-<script setup lang="ts">
-// 这里可以添加一些脚本，如果需要的话
-</script>
+<script setup lang="ts"></script>
 
 <style scoped>
 .container {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-}
-
-.header, .footer {
-  padding: 1rem;
-  background-color: #42b983;
+  font-family: Arial, sans-serif;
   color: white;
-  text-align: center;
 }
 
-.header {
-  margin-bottom: auto;
-}
-
+.header,
 .footer {
-  margin-top: auto;
+  padding: 1rem;
+  background-color: #007bff;
+  text-align: center;
+  transition: all 0.3s ease;
 }
 
 .main {
   padding: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card {
+  background-color: #007bff;
+  padding: 2rem;
+  border-radius: 1rem;
+  min-width: 240px;
+  max-width: 500px;
   text-align: center;
 }
 
@@ -48,9 +49,14 @@
   display: inline-block;
   margin-top: 1rem;
   padding: 0.5rem 1rem;
-  color: white;
-  background-color: #42b983;
+  color: #007bff;
+  background-color: white;
   text-decoration: none;
   border-radius: 5px;
+  transition: all 0.3s ease;
+}
+
+.button:hover {
+  background-color: #f5f5f5;
 }
 </style>

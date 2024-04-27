@@ -11,12 +11,16 @@
   "dependencies": {
     "@ant-design/icons-vue": "^7.0.1",
     "ant-design-vue": "^4.2.1",
+    "axios": "^1.6.8",
     "js-yaml": "^4.1.0",
+    "marked": "^12.0.2",
     "prismjs": "^1.29.0",
     "vue": "^3.4.21",
-    "vue-router": "^4.0.13"
+    "vue-router": "^4.0.13",
+    "vuex": "^4.1.0"
   },
   "devDependencies": {
+    "@types/node": "^20.12.7",
     "@vitejs/plugin-vue": "^5.0.4",
     "typescript": "^5.2.2",
     "unplugin-vue-components": "^0.26.0",

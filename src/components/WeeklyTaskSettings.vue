@@ -490,7 +490,7 @@ const handleYml = () => {
     }
   }
   yaml.value = jsYaml
-    .dump(yamlString)
+    .dump(yamlString, { noRefs: true })
     .replace("|", "")
     .replace(/^\s+|\s+$/g, "");
 };
@@ -600,7 +600,7 @@ const addform = ref({
   border: 1px dashed #1890ff;
   border-radius: 5px;
   transition: all 0.3s;
-  height: 250px;
+  height: 180px;
 }
 
 .custom-card {
