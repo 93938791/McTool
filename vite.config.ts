@@ -7,7 +7,7 @@ import { fileURLToPath, URL } from "url";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: "./",
+  base: "/McTool/",
   build: {
     outDir: "docs"
   },
